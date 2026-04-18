@@ -1,18 +1,32 @@
-import React, { useState, useCallback } from 'react';
-import { Search, Loader2 } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Search, Loader2, History } from 'lucide-react';
 
-const SearchBar = ({ onSearch, isLoading }) => {
+const SearchBar = ({ onSearch, isLoading, recentSearches }) => {
   const [query, setQuery] = useState('');
+  const debounceTimer = useRef(null);
 
   const handleSubmit = useCallback((e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (query.trim()) {
       onSearch(query.trim());
     }
   }, [query, onSearch]);
 
+  // Debounce search logic
+  useEffect(() => {
+    if (query.length > 3) {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        onSearch(query.trim());
+      }, 1000);
+    }
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [query, onSearch]);
+
   return (
-    <div className="w-full max-w-2xl mx-auto mb-12">
+    <div className="w-full max-w-2xl mx-auto space-y-6">
       <form onSubmit={handleSubmit} className="relative group">
         <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
@@ -39,6 +53,27 @@ const SearchBar = ({ onSearch, isLoading }) => {
           </button>
         </div>
       </form>
+
+      {recentSearches && recentSearches.length > 0 && (
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex items-center gap-2 mr-2 text-gray-400">
+            <History className="w-3 h-3" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Recent:</span>
+          </div>
+          {recentSearches.map((search, index) => (
+            <button
+              key={`${search}-${index}`}
+              onClick={() => {
+                setQuery(search);
+                onSearch(search);
+              }}
+              className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold text-gray-500 hover:bg-white hover:border-primary-200 hover:text-primary-600 transition-all"
+            >
+              {search}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

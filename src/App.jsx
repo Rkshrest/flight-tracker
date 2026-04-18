@@ -1,8 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { format } from 'date-fns';
+import { formatHumanTime, calculateDelayMinutes, formatLocalTime } from './utils/timeUtils';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import FlightCard from './components/FlightCard';
 import FlightDetails from './components/FlightDetails';
+import FlightInsight from './components/FlightInsight';
 import Loader from './components/Loader';
 import ErrorMessage from './components/ErrorMessage';
 import { getFlightData } from './services/api';
@@ -15,6 +18,10 @@ function App() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDetails, setShowDetails] = useState(false);
+  const [recentSearches, setRecentSearches] = useState(() => {
+    const saved = localStorage.getItem('recentSearches');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   // Reverting dark mode: removed theme state and force light mode class
   useEffect(() => {
@@ -34,6 +41,12 @@ function App() {
       const data = await getFlightData(flightNumber);
       if (data && data.length > 0) {
         setFlight(data[0]);
+        // Update recent searches
+        setRecentSearches(prev => {
+          const updated = [flightNumber, ...prev.filter(s => s !== flightNumber)].slice(0, 5);
+          localStorage.setItem('recentSearches', JSON.stringify(updated));
+          return updated;
+        });
       } else {
         setError("No flight found with that number. Please check for typos.");
         setFlight(null);
@@ -45,6 +58,57 @@ function App() {
       setIsLoading(false);
     }
   }, []);
+
+  const transformedFlight = useMemo(() => {
+    if (!flight) return null;
+
+    const depScheduled = flight.departure.scheduled;
+    const depEstimated = flight.departure.estimated || flight.departure.scheduled;
+    const arrScheduled = flight.arrival.scheduled;
+    const arrEstimated = flight.arrival.estimated || flight.arrival.scheduled;
+
+    const depDelay = calculateDelayMinutes(depScheduled, depEstimated);
+    const arrDelay = calculateDelayMinutes(arrScheduled, arrEstimated);
+
+    return {
+      airline: flight.airline?.name || 'Unknown Airline',
+      flightNumber: flight.flight?.iata || 'N/A',
+      status: flight.flight_status,
+      date: flight.flight_date ? format(new Date(flight.flight_date), 'EEE, MMM dd') : 'N/A',
+      departure: {
+        iata: flight.departure.iata,
+        airport: flight.departure.airport,
+        terminal: flight.departure.terminal,
+        gate: flight.departure.gate,
+        scheduled: depScheduled,
+        estimated: depEstimated,
+        formattedTime: formatLocalTime(depEstimated),
+        humanTime: formatHumanTime(depEstimated, 'departure')
+      },
+      arrival: {
+        iata: flight.arrival.iata,
+        airport: flight.arrival.airport,
+        terminal: flight.arrival.terminal,
+        gate: flight.arrival.gate,
+        scheduled: arrScheduled,
+        estimated: arrEstimated,
+        formattedTime: formatLocalTime(arrEstimated),
+        humanTime: formatHumanTime(arrEstimated, 'arrival')
+      },
+      delay: depDelay > arrDelay ? depDelay : arrDelay,
+      raw: flight
+    };
+  }, [flight]);
+
+  const flightSummary = useMemo(() => {
+    if (!transformedFlight) return '';
+    const { airline, flightNumber, departure, arrival, status } = transformedFlight;
+    const statusText = status === 'active' ? 'is currently en route from' : 
+                      status === 'scheduled' ? 'is scheduled to fly from' :
+                      status === 'landed' ? 'has landed at' : 'is';
+    
+    return `${airline} flight ${flightNumber} ${statusText} ${departure.airport} to ${arrival.airport} and is ${transformedFlight.delay > 10 ? 'delayed' : 'on time'}.`;
+  }, [transformedFlight]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -76,39 +140,52 @@ function App() {
           </motion.p>
         </div>
 
-        <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+        <SearchBar 
+          onSearch={handleSearch} 
+          isLoading={isLoading} 
+          recentSearches={recentSearches} 
+        />
 
         <div className="mt-16 space-y-12">
           {isLoading ? (
             <Loader />
           ) : error ? (
             <ErrorMessage message={error} onRetry={() => handleSearch(searchQuery)} />
-          ) : flight ? (
+          ) : transformedFlight ? (
             <div className="space-y-8">
               <FlightCard 
-                flight={flight} 
+                flight={transformedFlight} 
                 onToggleDetails={() => setShowDetails(!showDetails)} 
               />
+              
               <AnimatePresence>
                 {showDetails && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
+                    className="overflow-hidden space-y-8"
                   >
-                    <FlightDetails flight={flight} />
+                    <FlightInsight 
+                      delay={transformedFlight.delay} 
+                      summary={flightSummary} 
+                    />
+                    <FlightDetails flight={transformedFlight.raw} />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24 text-center opacity-30">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-24 text-center opacity-30"
+            >
                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                  <PlaneTakeoff className="w-10 h-10 text-gray-400" />
                </div>
-               <p className="text-gray-500 font-black text-xl tracking-tight uppercase">Enter Flight Code</p>
-            </div>
+               <p className="text-gray-500 font-black text-xl tracking-tight uppercase">Search for a flight to get real-time updates</p>
+            </motion.div>
           )}
         </div>
       </main>
