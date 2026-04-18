@@ -103,9 +103,14 @@ function App() {
   const flightSummary = useMemo(() => {
     if (!transformedFlight) return '';
     const { airline, flightNumber, departure, arrival, status } = transformedFlight;
-    const statusText = status === 'active' ? 'is currently en route from' : 
-                      status === 'scheduled' ? 'is scheduled to fly from' :
-                      status === 'landed' ? 'has landed at' : 'is';
+    
+    // Logic to determine if it has arrived based on current time
+    const arrTime = new Date(arrival.estimated.replace(/\+00:00$/, ''));
+    const hasArrived = status === 'landed' || arrTime < new Date();
+
+    const statusText = hasArrived ? 'has landed at' : 
+                      status === 'active' ? 'is currently en route from' : 
+                      'is scheduled to fly from';
     
     return `${airline} flight ${flightNumber} ${statusText} ${departure.airport} to ${arrival.airport} and is ${transformedFlight.delay > 10 ? 'delayed' : 'on time'}.`;
   }, [transformedFlight]);
