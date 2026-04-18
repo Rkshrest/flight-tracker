@@ -10,9 +10,9 @@ const FlightDetails = ({ flight }) => {
       title: 'Aviation Intelligence',
       items: [
         { label: 'Departure Delay', value: flight.departure?.delay ? `${flight.departure.delay} min` : 'None', icon: <Clock className="w-4 h-4" /> },
-        { label: 'Baggage Claim', value: flight.arrival?.baggage || 'Claim 5', icon: <ShieldCheck className="w-4 h-4" /> },
-        { label: 'Aircraft Model', value: flight.aircraft?.model || 'Airbus A320neo', icon: <Zap className="w-4 h-4" /> },
-        { label: 'Registration', value: flight.aircraft?.reg || 'VT-ISO', icon: <Info className="w-4 h-4" /> },
+        { label: 'Baggage Claim', value: flight.arrival?.baggage || 'TBD', icon: <ShieldCheck className="w-4 h-4" /> },
+        { label: 'Aircraft Model', value: flight.aircraft?.model || 'Not Available', icon: <Zap className="w-4 h-4" /> },
+        { label: 'Registration', value: flight.aircraft?.reg || 'Not Available', icon: <Info className="w-4 h-4" /> },
       ]
     },
     {

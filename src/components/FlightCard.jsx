@@ -115,8 +115,17 @@ const FlightCard = ({ flight, onToggleDetails }) => {
                    <MapPin className="w-4 h-4 text-gray-400" />
                  </div>
                  <div>
-                    <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Terminal / Gate</span>
-                    <span className="text-lg font-black text-gray-900">{flight.departure.terminal || '1'} / {flight.departure.gate || '24'}</span>
+                    <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Terminal</span>
+                    <span className="text-lg font-black text-gray-900">{flight.departure.terminal || '---'}</span>
+                 </div>
+              </div>
+              <div className="flex items-center gap-4">
+                 <div className="p-3 bg-gray-50 rounded-xl">
+                   <Clock className="w-4 h-4 text-gray-400" />
+                 </div>
+                 <div>
+                    <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Gate</span>
+                    <span className="text-lg font-black text-gray-900">{flight.departure.gate || '---'}</span>
                  </div>
               </div>
            </div>

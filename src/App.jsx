@@ -97,8 +97,8 @@ function App() {
       },
       delay: depDelay > arrDelay ? depDelay : arrDelay,
       aircraft: {
-        model: flight.aircraft?.iata || (flight.flight?.iata?.startsWith('6E') ? 'Airbus A321neo' : 'Airbus A320neo'),
-        reg: flight.aircraft?.registration || `VT-${Math.random().toString(36).substring(2, 5).toUpperCase()}`,
+        model: flight.aircraft?.iata || null,
+        reg: flight.aircraft?.registration || null,
         airline: flight.airline?.name
       },
       weather: {
