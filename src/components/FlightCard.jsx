@@ -1,10 +1,8 @@
 import React from 'react';
-import { Plane, ArrowRight, Clock, MapPin } from 'lucide-react';
+import { Plane, ArrowRight, Clock, MapPin, Share2 } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import FlightTimeline from './FlightTimeline';
 import { motion } from 'framer-motion';
-
-import { Plane, ArrowRight, Clock, MapPin, Share2 } from 'lucide-react';
 
 const FlightCard = ({ flight, onToggleDetails }) => {
   if (!flight) return null;
