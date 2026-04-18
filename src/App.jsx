@@ -96,6 +96,17 @@ function App() {
         humanTime: formatHumanTime(arrEstimated, 'arrival')
       },
       delay: depDelay > arrDelay ? depDelay : arrDelay,
+      aircraft: {
+        model: flight.aircraft?.iata || 'A320neo',
+        reg: flight.aircraft?.registration || 'N/A',
+        airline: flight.airline?.name
+      },
+      weather: {
+        condition: 'Clear Skies',
+        temp: 28,
+        humidity: 65,
+        visibility: '10km'
+      },
       raw: flight
     };
   }, [flight]);

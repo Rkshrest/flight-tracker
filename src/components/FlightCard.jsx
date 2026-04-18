@@ -4,8 +4,24 @@ import StatusBadge from './StatusBadge';
 import FlightTimeline from './FlightTimeline';
 import { motion } from 'framer-motion';
 
+import { Plane, ArrowRight, Clock, MapPin, Share2 } from 'lucide-react';
+
 const FlightCard = ({ flight, onToggleDetails }) => {
   if (!flight) return null;
+
+  const handleShare = () => {
+    const summary = `Tracking ${flight.airline} flight ${flight.flightNumber}. Currently ${flight.status === 'active' ? 'en route' : flight.status}. Arriving at ${flight.arrival.iata} @ ${flight.arrival.formattedTime}.`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Flight Intelligence',
+        text: summary,
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(summary);
+      alert('Flight intelligence copied to clipboard!');
+    }
+  };
 
   return (
     <motion.div 
@@ -33,7 +49,52 @@ const FlightCard = ({ flight, onToggleDetails }) => {
               </div>
             </div>
           </div>
-          <StatusBadge status={flight.status} />
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={handleShare}
+              className="p-3 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-primary-600 rounded-xl transition-all"
+            >
+              <Share2 className="w-5 h-5" />
+            </button>
+            <StatusBadge status={flight.status} />
+          </div>
+        </div>
+
+        {/* Visual Route Map (SVG) */}
+        <div className="w-full h-32 relative flex items-center justify-center">
+           <svg className="w-full h-full" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <motion.path 
+                d="M 50 80 Q 200 10 350 80" 
+                stroke="#F1F5F9" 
+                strokeWidth="2" 
+                strokeDasharray="4 4" 
+              />
+              <motion.path 
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 2, ease: "easeInOut" }}
+                d="M 50 80 Q 200 10 350 80" 
+                stroke="url(#gradient)" 
+                strokeWidth="3" 
+                strokeLinecap="round"
+              />
+              <defs>
+                <linearGradient id="gradient" x1="50" y1="80" x2="350" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#3B82F6" />
+                  <stop offset="1" stopColor="#60A5FA" />
+                </linearGradient>
+              </defs>
+           </svg>
+           <div className="absolute inset-0 flex justify-between items-end px-4 pb-2">
+              <div className="flex flex-col items-center">
+                 <div className="w-2 h-2 bg-primary-600 rounded-full" />
+                 <span className="text-[10px] font-black text-gray-300 mt-2">{flight.departure.iata}</span>
+              </div>
+              <div className="flex flex-col items-center">
+                 <div className="w-2 h-2 bg-gray-200 rounded-full" />
+                 <span className="text-[10px] font-black text-gray-300 mt-2">{flight.arrival.iata}</span>
+              </div>
+           </div>
         </div>
 
         {/* Route Visualization */}
@@ -99,7 +160,7 @@ const FlightCard = ({ flight, onToggleDetails }) => {
               </div>
            </div>
 
-           <div className="col-span-2 flex justify-end items-end">
+           <div className="col-span-2 flex justify-end items-end gap-4">
               <button 
                 onClick={onToggleDetails}
                 className="group flex items-center gap-4 px-10 py-5 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] hover:bg-primary-600 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:shadow-primary-200"
