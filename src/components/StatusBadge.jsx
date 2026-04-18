@@ -1,30 +1,5 @@
-import React, { useMemo } from 'react';
-import { twMerge } from 'tailwind-merge';
+import React from 'react';
 
-const StatusBadge = ({ status }) => {
-  const config = useMemo(() => {
-    const s = status?.toLowerCase();
-    
-    // Green -> On Time, Landed, Active
-    if (s === 'landed' || s === 'active') {
-      return {
-        label: s === 'active' ? 'Live' : 'Landed',
-        classes: 'bg-green-50 text-green-600 border-green-100',
-        dot: 'bg-green-500'
-      };
-    }
-    
-    // Yellow -> Delayed, Scheduled (if we want to differentiate)
-    if (s === 'delayed') {
-      return {
-        label: 'Delayed',
-        classes: 'bg-yellow-50 text-yellow-600 border-yellow-100',
-        dot: 'bg-yellow-500'
-      };
-    }
-
-    if (s === 'scheduled') {
-      return {
 const StatusBadge = ({ status, isDark = false }) => {
   const getStatusStyles = () => {
     switch (status?.toLowerCase()) {
