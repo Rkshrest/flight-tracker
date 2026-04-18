@@ -115,7 +115,7 @@ function App() {
 
       <footer className="py-12 text-center border-t border-gray-100 bg-white">
          <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-           © 2026 FlightTracker intelligence unit.
+           build by shrest sharma
          </p>
       </footer>
     </div>
