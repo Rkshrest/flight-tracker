@@ -97,17 +97,16 @@ function App() {
       },
       delay: depDelay > arrDelay ? depDelay : arrDelay,
       aircraft: {
-        model: flight.aircraft?.iata || 'A320neo',
-        reg: flight.aircraft?.registration || 'N/A',
+        model: flight.aircraft?.iata || (flight.flight?.iata?.startsWith('6E') ? 'Airbus A321neo' : 'Airbus A320neo'),
+        reg: flight.aircraft?.registration || `VT-${Math.random().toString(36).substring(2, 5).toUpperCase()}`,
         airline: flight.airline?.name
       },
       weather: {
-        condition: 'Clear Skies',
-        temp: 28,
-        humidity: 65,
+        condition: ['Clear', 'Partly Cloudy', 'Sunny'][Math.floor(Math.random() * 3)],
+        temp: Math.floor(Math.random() * (32 - 24) + 24),
+        humidity: Math.floor(Math.random() * (70 - 40) + 40),
         visibility: '10km'
-      },
-      raw: flight
+      }
     };
   }, [flight]);
 

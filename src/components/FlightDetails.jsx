@@ -11,17 +11,17 @@ const FlightDetails = ({ flight }) => {
       items: [
         { label: 'Departure Delay', value: flight.departure?.delay ? `${flight.departure.delay} min` : 'None', icon: <Clock className="w-4 h-4" /> },
         { label: 'Baggage Claim', value: flight.arrival?.baggage || 'Claim 5', icon: <ShieldCheck className="w-4 h-4" /> },
-        { label: 'Aircraft Model', value: flight.aircraft?.iata || 'Airbus A320neo', icon: <Zap className="w-4 h-4" /> },
-        { label: 'Registration', value: flight.aircraft?.registration || 'VT-ISO', icon: <Info className="w-4 h-4" /> },
+        { label: 'Aircraft Model', value: flight.aircraft?.model || 'Airbus A320neo', icon: <Zap className="w-4 h-4" /> },
+        { label: 'Registration', value: flight.aircraft?.reg || 'VT-ISO', icon: <Info className="w-4 h-4" /> },
       ]
     },
     {
       title: 'Destination Weather',
       items: [
-        { label: 'Condition', value: 'Clear Skies', icon: <Cloud className="w-4 h-4" /> },
-        { label: 'Temperature', value: '28°C', icon: <Thermometer className="w-4 h-4" /> },
-        { label: 'Humidity', value: '65%', icon: <Droplets className="w-4 h-4" /> },
-        { label: 'Visibility', value: '10km', icon: <Eye className="w-4 h-4" /> },
+        { label: 'Condition', value: flight.weather?.condition || 'Clear Skies', icon: <Cloud className="w-4 h-4" /> },
+        { label: 'Temperature', value: `${flight.weather?.temp || 28}°C`, icon: <Thermometer className="w-4 h-4" /> },
+        { label: 'Humidity', value: `${flight.weather?.humidity || 65}%`, icon: <Droplets className="w-4 h-4" /> },
+        { label: 'Visibility', value: flight.weather?.visibility || '10km', icon: <Eye className="w-4 h-4" /> },
       ]
     }
   ];

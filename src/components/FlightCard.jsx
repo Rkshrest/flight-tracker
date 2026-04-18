@@ -66,11 +66,11 @@ const FlightCard = ({ flight, onToggleDetails }) => {
              </div>
              
              <div className="flex flex-col items-center gap-4 mb-4">
-                <div className="px-6 py-2 bg-primary-600 rounded-full text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
-                  <Globe className="w-3 h-3" />
-                  Non-Stop Intel
+                <div className="px-6 py-2 bg-white/5 backdrop-blur-md rounded-full text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-3 border border-white/10">
+                  <Globe className="w-3 h-3 text-primary-400" />
+                  Direct Flight
                 </div>
-                <div className="w-24 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <div className="w-24 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
              </div>
 
              <div className="space-y-2 text-right">
