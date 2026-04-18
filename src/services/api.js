@@ -40,24 +40,32 @@ export const getFlightData = async (flightNumber) => {
       const now = new Date();
       
       return flights.sort((a, b) => {
-        // Priority 1: Status
-        const statusPriority = { 'active': 0, 'scheduled': 1, 'landed': 2, 'cancelled': 3 };
-        const aStatus = statusPriority[a.flight_status] ?? 4;
-        const bStatus = statusPriority[b.flight_status] ?? 4;
-        
-        if (aStatus !== bStatus) return aStatus - bStatus;
+        const aStatus = a.flight_status;
+        const bStatus = b.flight_status;
 
-        // Priority 2: Date proximity to NOW
-        const aTime = a.departure.estimated || a.departure.scheduled;
-        const bTime = b.departure.estimated || b.departure.scheduled;
+        // If one is active, it's likely the most relevant
+        if (aStatus === 'active' && bStatus !== 'active') return -1;
+        if (bStatus === 'active' && aStatus !== 'active') return 1;
+
+        const aTime = new Date(a.departure.estimated || a.departure.scheduled);
+        const bTime = new Date(b.departure.estimated || b.departure.scheduled);
         
-        if (aTime && bTime) {
-          const aDiff = Math.abs(new Date(aTime) - now);
-          const bDiff = Math.abs(new Date(bTime) - now);
+        const aDiff = Math.abs(aTime - now);
+        const bDiff = Math.abs(bTime - now);
+
+        // If time difference is significant, pick the closest one
+        if (Math.abs(aDiff - bDiff) > 1000 * 60 * 60) { // 1 hour threshold
           return aDiff - bDiff;
         }
 
-        return new Date(b.flight_date) - new Date(a.flight_date);
+        // Otherwise, use status priority for tie-breaking
+        const statusPriority = { 'active': 0, 'scheduled': 1, 'landed': 2, 'cancelled': 3 };
+        const aSP = statusPriority[aStatus] ?? 4;
+        const bSP = statusPriority[bStatus] ?? 4;
+        
+        if (aSP !== bSP) return aSP - bSP;
+
+        return bTime - aTime;
       });
     }
     

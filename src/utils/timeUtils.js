@@ -7,7 +7,10 @@ export const formatHumanTime = (isoString, type = 'departure') => {
   if (!isoString) return '';
   
   try {
-    const date = parseISO(isoString);
+    // Aviationstack returns local time but appends +00:00. 
+    // We strip it to treat the time as local for comparison with local 'now'.
+    const localIso = isoString.replace(/\+00:00$/, '');
+    const date = new Date(localIso);
     const now = new Date();
     
     const distance = formatDistanceToNow(date, { addSuffix: true });
@@ -28,8 +31,8 @@ export const formatHumanTime = (isoString, type = 'departure') => {
 export const calculateDelayMinutes = (scheduled, estimated) => {
   if (!scheduled || !estimated) return 0;
   try {
-    const s = new Date(scheduled);
-    const e = new Date(estimated);
+    const s = new Date(scheduled.replace(/\+00:00$/, ''));
+    const e = new Date(estimated.replace(/\+00:00$/, ''));
     const diff = (e - s) / (1000 * 60);
     return Math.max(0, Math.round(diff));
   } catch (e) {
