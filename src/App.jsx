@@ -185,7 +185,7 @@ function App() {
                       delay={transformedFlight.delay} 
                       summary={flightSummary} 
                     />
-                    <FlightDetails flight={transformedFlight.raw} />
+                    <FlightDetails flight={transformedFlight} />
                   </motion.div>
                 )}
               </AnimatePresence>
