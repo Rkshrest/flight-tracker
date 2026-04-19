@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { formatHumanTime, calculateDelayMinutes, formatLocalTime } from './utils/timeUtils';
 import Header from './components/Header';
@@ -12,22 +13,38 @@ import { getFlightData } from './services/api';
 import { PlaneTakeoff, Shield } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-function App() {
+// Auth & Firestore
+import { AuthProvider, useAuth } from './context/AuthContext';
+import ProtectedRoute from './routes/ProtectedRoute';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import { saveSearch, getRecentSearches, saveFavorite, getFavorites, removeFavorite } from './services/firestore';
+
+function Dashboard() {
+  const { user } = useAuth();
   const [flight, setFlight] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDetails, setShowDetails] = useState(false);
-  const [recentSearches, setRecentSearches] = useState(() => {
-    const saved = localStorage.getItem('recentSearches');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [favorites, setFavorites] = useState([]);
 
-  // Reverting dark mode: removed theme state and force light mode class
+  // Fetch user data on mount
   useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('theme', 'light');
-  }, []);
+    if (user) {
+      loadUserData();
+    }
+  }, [user]);
+
+  const loadUserData = async () => {
+    const [searches, favs] = await Promise.all([
+      getRecentSearches(user.uid),
+      getFavorites(user.uid)
+    ]);
+    setRecentSearches(searches);
+    setFavorites(favs);
+  };
 
   const handleSearch = useCallback(async (flightNumber) => {
     if (!flightNumber) return;
@@ -40,13 +57,20 @@ function App() {
     try {
       const data = await getFlightData(flightNumber);
       if (data && data.length > 0) {
-        setFlight(data[0]);
-        // Update recent searches
-        setRecentSearches(prev => {
-          const updated = [flightNumber, ...prev.filter(s => s !== flightNumber)].slice(0, 5);
-          localStorage.setItem('recentSearches', JSON.stringify(updated));
-          return updated;
+        const flightData = data[0];
+        setFlight(flightData);
+        
+        // Save to Firestore
+        await saveSearch(user.uid, {
+          flightNumber: flightData.flight?.iata || flightNumber,
+          airline: flightData.airline?.name || 'Unknown',
+          departure: flightData.departure,
+          arrival: flightData.arrival
         });
+        
+        // Refresh recent searches
+        const updatedSearches = await getRecentSearches(user.uid);
+        setRecentSearches(updatedSearches);
       } else {
         setError("No flight found with that number. Please check for typos.");
         setFlight(null);
@@ -57,7 +81,18 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
+
+  const handleToggleFavorite = async (flightData) => {
+    const isFav = favorites.find(f => f.flightNumber === flightData.flightNumber);
+    if (isFav) {
+      await removeFavorite(isFav.id);
+    } else {
+      await saveFavorite(user.uid, flightData);
+    }
+    const updatedFavs = await getFavorites(user.uid);
+    setFavorites(updatedFavs);
+  };
 
   const transformedFlight = useMemo(() => {
     if (!flight) return null;
@@ -114,7 +149,6 @@ function App() {
     if (!transformedFlight) return '';
     const { airline, flightNumber, departure, arrival, status } = transformedFlight;
     
-    // Logic to determine if it has arrived based on current time
     const arrTime = new Date(arrival.estimated.replace(/\+00:00$/, ''));
     const hasArrived = status === 'landed' || arrTime < new Date();
 
@@ -170,7 +204,9 @@ function App() {
             <div className="space-y-8">
               <FlightCard 
                 flight={transformedFlight} 
-                onToggleDetails={() => setShowDetails(!showDetails)} 
+                onToggleDetails={() => setShowDetails(!showDetails)}
+                onSaveFavorite={handleToggleFavorite}
+                isFavorite={!!favorites.find(f => f.flightNumber === transformedFlight.flightNumber)}
               />
               
               <AnimatePresence>
@@ -211,6 +247,28 @@ function App() {
          </p>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

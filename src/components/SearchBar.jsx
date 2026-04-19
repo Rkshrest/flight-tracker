@@ -62,14 +62,15 @@ const SearchBar = ({ onSearch, isLoading, recentSearches }) => {
           </div>
           {recentSearches.map((search, index) => (
             <button
-              key={`${search}-${index}`}
+              key={search.id || index}
               onClick={() => {
-                setQuery(search);
-                onSearch(search);
+                const num = typeof search === 'string' ? search : search.flightNumber;
+                setQuery(num);
+                onSearch(num);
               }}
               className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold text-gray-500 hover:bg-white hover:border-primary-200 hover:text-primary-600 transition-all"
             >
-              {search}
+              {typeof search === 'string' ? search : search.flightNumber}
             </button>
           ))}
         </div>

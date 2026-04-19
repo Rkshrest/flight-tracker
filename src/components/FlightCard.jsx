@@ -1,11 +1,12 @@
-import React from 'react';
-import { Plane, ArrowRight, Clock, MapPin, Share2, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plane, ArrowRight, Clock, MapPin, Share2, Globe, Star } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import FlightTimeline from './FlightTimeline';
 import { motion } from 'framer-motion';
 
-const FlightCard = ({ flight, onToggleDetails }) => {
+const FlightCard = ({ flight, onToggleDetails, onSaveFavorite, isFavorite = false }) => {
   if (!flight) return null;
+  const [saved, setSaved] = useState(isFavorite);
 
   const handleShare = () => {
     const summary = `Tracking ${flight.airline} flight ${flight.flightNumber}. Currently ${flight.status === 'active' ? 'en route' : flight.status}. Arriving at ${flight.arrival.iata} @ ${flight.arrival.formattedTime}.`;
@@ -18,6 +19,13 @@ const FlightCard = ({ flight, onToggleDetails }) => {
     } else {
       navigator.clipboard.writeText(summary);
       alert('Flight intelligence copied to clipboard!');
+    }
+  };
+
+  const handleSave = async () => {
+    if (onSaveFavorite) {
+      await onSaveFavorite(flight);
+      setSaved(!saved);
     }
   };
 
@@ -53,9 +61,18 @@ const FlightCard = ({ flight, onToggleDetails }) => {
                 </div>
               </div>
             </div>
-            <button onClick={handleShare} className="p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5">
-              <Share2 className="w-5 h-5 text-white/60" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleSave}
+                className={`p-4 rounded-2xl transition-all border ${saved ? 'bg-primary-600 border-primary-500 text-white' : 'bg-white/5 border-white/5 text-white/60 hover:bg-white/10'}`}
+                title={saved ? "Remove from Favorites" : "Save to Favorites"}
+              >
+                <Star className={`w-5 h-5 ${saved ? 'fill-white' : ''}`} />
+              </button>
+              <button onClick={handleShare} className="p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5" title="Share Intel">
+                <Share2 className="w-5 h-5 text-white/60" />
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-between items-end">
