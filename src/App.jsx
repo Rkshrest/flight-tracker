@@ -9,6 +9,7 @@ import FlightDetails from './components/FlightDetails';
 import FlightInsight from './components/FlightInsight';
 import Loader from './components/Loader';
 import ErrorMessage from './components/ErrorMessage';
+import UserSavedData from './components/UserSavedData';
 import { getFlightData } from './services/api';
 import { PlaneTakeoff, Shield } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -238,6 +239,12 @@ function Dashboard() {
                <p className="text-gray-500 font-black text-xl tracking-tight uppercase">Search for a flight to get real-time updates</p>
             </motion.div>
           )}
+
+          <UserSavedData 
+            recentSearches={recentSearches} 
+            favorites={favorites} 
+            onSelectFlight={handleSearch} 
+          />
         </div>
       </main>
 
