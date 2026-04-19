@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB0NsauoPWl4lsmVSCcYR_QG1zqHkaOD1c",
-  authDomain: "flighttracker-63e05.firebaseapp.com",
-  projectId: "flighttracker-63e05",
-  storageBucket: "flighttracker-63e05.firebasestorage.app",
-  messagingSenderId: "922121022548",
-  appId: "1:922121022548:web:2274ab5ed5e7c60208d1c1"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
