@@ -1,16 +1,57 @@
-# React + Vite
+✈️ FlightTracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern and minimal flight tracking dashboard built using React that allows users to search flights and view real-time flight information in a clean and intuitive interface.
 
-Currently, two official plugins are available:
+🚀 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+👉 https://flight-tracker-mu-taupe.vercel.app
 
-## React Compiler
+🎥 Project Demo Video
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+👉 https://drive.google.com/file/d/1V-aSoQDILcGUngsoN1UdZZk6VWMmgFqM/view?usp=sharing
 
-## Expanding the ESLint configuration
+(Click the link above to view the full walkthrough of the project)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+📌 Features
+
+🔍 Search flights using flight number
+📡 Real-time data using Aviationstack API
+📊 Clean and minimal dashboard UI
+🎯 Structured and easy-to-read flight information
+🟢 Status indicators (On Time / Delayed / Cancelled)
+⚡ Fast and responsive design
+
+🧠 Tech Stack
+Frontend: React.js (Functional Components)
+Hooks Used: useState, useEffect, useCallback, useMemo
+API: Aviationstack API
+Deployment: Vercel
+
+🖥️ How It Works
+Enter a flight number (e.g., 6E 952)
+The app fetches real-time data from the API
+Data is processed and displayed in a structured format
+Users can quickly understand flight status and timing
+
+
+🎯 Project Goal
+
+The goal of this project was to:
+
+Build a clean and minimal UI
+Improve user experience
+Convert raw API data into meaningful insights
+
+⚠️ Note
+The application uses the free tier of the Aviationstack API
+Some data may be limited or delayed
+
+🔮 Future Improvements
+User authentication (Firebase)
+Save recent searches
+Live flight map tracking
+Notifications for delays
+
+👨‍💻 Author
+
+Shrest Sharma
